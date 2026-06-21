@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, JetBrains_Mono, Geist } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
@@ -78,6 +80,8 @@ export default function RootLayout({
           <style>{`.reveal-on-scroll{opacity:1!important;transform:none!important}`}</style>
         </noscript>
         {children}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
