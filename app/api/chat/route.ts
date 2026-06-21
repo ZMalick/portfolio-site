@@ -1,5 +1,6 @@
 import { createGroq } from "@ai-sdk/groq";
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { ipAddress } from "@vercel/functions";
 import { SYSTEM_PROMPT } from "@/content/corpus";
 import { checkRateLimit } from "@/lib/ratelimit";
 
@@ -28,10 +29,13 @@ function textChars(m: UIMessage): number {
 }
 
 function clientIp(req: Request): string {
-  // On Vercel, x-real-ip is the platform-verified client IP and is not
-  // client-spoofable. Prefer it; never key the rate limit on the
-  // client-controlled leftmost X-Forwarded-For. Fall back to the rightmost
-  // (closest-hop) XFF value only when x-real-ip is absent (local dev).
+  // Vercel's verified client IP — resolved correctly across runtimes (Node /
+  // fluid compute) and not client-spoofable. This is the canonical source on
+  // Vercel; the header fallbacks below only matter for local/non-Vercel runs.
+  const vercelIp = ipAddress(req);
+  if (vercelIp) return vercelIp;
+  // x-real-ip is platform-verified where set; never key on the client-
+  // controlled leftmost X-Forwarded-For — use the rightmost (closest hop).
   const realIp = req.headers.get("x-real-ip");
   if (realIp) return realIp.trim();
   const fwd = req.headers.get("x-forwarded-for");
@@ -54,7 +58,11 @@ export async function POST(req: Request) {
   }
 
   // Per-IP rate limit (no-op locally without Upstash creds).
-  const { success } = await checkRateLimit(clientIp(req));
+  const ip = clientIp(req);
+  const { success, remaining, limit } = await checkRateLimit(ip);
+  // TEMP diagnostic — confirm the limiter sees a stable key + decrements on
+  // Vercel. Remove once the per-IP limit is verified working in production.
+  console.log(`[chat] rl ip=${ip} success=${success} remaining=${remaining}/${limit}`);
   if (!success) {
     return Response.json(
       { error: "Too many requests — give it a minute and try again." },
@@ -101,6 +109,8 @@ export async function POST(req: Request) {
       system: SYSTEM_PROMPT,
       messages: modelMessages,
       maxOutputTokens: 1024,
+      // Don't burn the daily token budget retrying a hard rate-limit error.
+      maxRetries: 1,
       abortSignal: req.signal,
     });
 

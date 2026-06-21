@@ -1,7 +1,7 @@
 import type { SiteProfile } from "@/lib/types";
 
-// All contact facts verified this session except LinkedIn (LinkedIn 999-walls
-// automated checks) — gate the LinkedIn link on Zaid's confirmation before it ships.
+// All contact facts verified. LinkedIn can't be auto-checked (it 999-walls
+// automated requests); confirmed manually by Zaid.
 export const profile: SiteProfile = {
   name: "Zaid Malick",
   headline: "AI Engineer building agentic systems that ship.",
@@ -34,7 +34,7 @@ export const profile: SiteProfile = {
     email: "zaidmalick6@gmail.com",
     github: "ZMalick",
     githubUrl: "https://github.com/ZMalick",
-    linkedinUrl: "https://www.linkedin.com/in/zaid-malick", // PENDING Zaid's confirmation
+    linkedinUrl: "https://www.linkedin.com/in/zaid-malick",
     resumeUrl: "/resume.pdf",
   },
 };
