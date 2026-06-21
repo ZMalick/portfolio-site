@@ -7,28 +7,39 @@ import { checkRateLimit } from "@/lib/ratelimit";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-// ~2,000 tokens ≈ ~8,000 chars. Reject longer user input server-side.
+// Cost guards. Per-message cap (~2,000 tokens ≈ 8k chars) AND an aggregate cap
+// across the turns actually sent to the model (prevents cost-exhaustion via many
+// large messages, not just one).
 const MAX_INPUT_CHARS = 8_000;
+const MAX_TOTAL_CHARS = 24_000;
 // Keep cost bounded — only the most recent turns are sent to the model.
 const MAX_HISTORY_MESSAGES = 12;
+const ALLOWED_ROLES = new Set(["user", "assistant", "system"]);
 
 // Llama 3.3 70B on Groq's free tier (see decisions/log.md). Fast inference,
 // generous free limits, no billing. The corpus is small, so no caching layer.
 const MODEL = "llama-3.3-70b-versatile";
 
-function latestUserText(messages: UIMessage[]): string {
-  const last = [...messages].reverse().find((m) => m.role === "user");
-  if (!last) return "";
-  return last.parts
-    .filter((p): p is { type: "text"; text: string } => p.type === "text")
-    .map((p) => p.text)
-    .join(" ");
+function textChars(m: UIMessage): number {
+  return (m.parts ?? []).reduce(
+    (n, p) => n + (p.type === "text" ? (p.text?.length ?? 0) : 0),
+    0,
+  );
 }
 
 function clientIp(req: Request): string {
+  // On Vercel, x-real-ip is the platform-verified client IP and is not
+  // client-spoofable. Prefer it; never key the rate limit on the
+  // client-controlled leftmost X-Forwarded-For. Fall back to the rightmost
+  // (closest-hop) XFF value only when x-real-ip is absent (local dev).
+  const realIp = req.headers.get("x-real-ip");
+  if (realIp) return realIp.trim();
   const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0]!.trim();
-  return req.headers.get("x-real-ip") ?? "anonymous";
+  if (fwd) {
+    const hops = fwd.split(",").map((p) => p.trim()).filter(Boolean);
+    if (hops.length) return hops[hops.length - 1]!;
+  }
+  return "anonymous";
 }
 
 export async function POST(req: Request) {
@@ -63,14 +74,24 @@ export async function POST(req: Request) {
     return Response.json({ error: "No messages provided." }, { status: 400 });
   }
 
-  if (latestUserText(messages).length > MAX_INPUT_CHARS) {
+  // Validate shape: every message must have a known role and a parts array.
+  if (!messages.every((m) => m && ALLOWED_ROLES.has(m.role) && Array.isArray(m.parts))) {
+    return Response.json({ error: "Malformed messages." }, { status: 400 });
+  }
+
+  const trimmed = messages.slice(-MAX_HISTORY_MESSAGES);
+
+  // Cap both per-message and aggregate size of what's actually sent to the model.
+  const tooBig =
+    trimmed.some((m) => textChars(m) > MAX_INPUT_CHARS) ||
+    trimmed.reduce((n, m) => n + textChars(m), 0) > MAX_TOTAL_CHARS;
+  if (tooBig) {
     return Response.json(
-      { error: "That message is too long. Please shorten it." },
+      { error: "That input is too long. Please shorten it." },
       { status: 413 },
     );
   }
 
-  const trimmed = messages.slice(-MAX_HISTORY_MESSAGES);
   const groq = createGroq({ apiKey });
 
   try {

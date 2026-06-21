@@ -19,6 +19,14 @@ const ratelimit = hasUpstash
 
 export const rateLimitEnabled = hasUpstash;
 
+// Make a misconfiguration loud: fail-open is fine for local dev, but in
+// production a missing Upstash config silently removes abuse protection.
+if (!hasUpstash && process.env.NODE_ENV === "production") {
+  console.warn(
+    "[ratelimit] Upstash is NOT configured — the public /api/chat endpoint is unprotected by rate limiting.",
+  );
+}
+
 export async function checkRateLimit(identifier: string): Promise<{
   success: boolean;
   remaining: number;
