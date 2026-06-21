@@ -1,4 +1,5 @@
 import type { Project, ProjectProof } from "@/lib/types";
+import Reveal from "@/components/Reveal";
 
 const proofLabel: Record<ProjectProof, string> = {
   "live-demo": "Live demo",
@@ -35,13 +36,16 @@ export default function ProjectCard({
   featured?: boolean;
 }) {
   const num = String(index + 1).padStart(2, "0");
+  // Cards in the 3-up grid stagger; the featured lead card reveals on its own.
+  const delay = featured ? 0 : (index - 1) * 90;
 
   return (
-    <article
-      className={`group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-line-bright sm:p-7 ${
-        featured ? "md:flex-row md:gap-10 md:p-9" : ""
-      }`}
-    >
+    <Reveal delay={delay} className="h-full">
+      <article
+        className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface p-6 transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-line-bright sm:p-7 ${
+          featured ? "md:flex-row md:gap-10 md:p-9" : ""
+        }`}
+      >
       {/* accent hairline that appears on hover */}
       <span className="pointer-events-none absolute inset-x-0 top-0 h-px scale-x-0 bg-gradient-to-r from-transparent via-accent to-transparent opacity-0 transition-all duration-500 group-hover:scale-x-100 group-hover:opacity-100" />
 
@@ -96,9 +100,12 @@ export default function ProjectCard({
                   href={l.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="link-underline inline-flex items-center gap-1 font-mono text-sm text-fg transition-colors hover:text-accent"
+                  className="link-underline group/link inline-flex items-center gap-1 font-mono text-sm text-fg transition-colors hover:text-accent"
                 >
-                  {l.label} ↗
+                  {l.label}{" "}
+                  <span className="inline-block transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5">
+                    ↗
+                  </span>
                 </a>
               ))
             ) : (
@@ -109,6 +116,7 @@ export default function ProjectCard({
           </div>
         </div>
       </div>
-    </article>
+      </article>
+    </Reveal>
   );
 }

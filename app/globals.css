@@ -30,6 +30,7 @@
 
   /* Easings */
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ---------- Base ---------- */
@@ -147,6 +148,33 @@ body {
   }
   .cursor-blink {
     animation: blink 1.1s steps(1) infinite;
+  }
+
+  /* Scroll-triggered reveal — starts hidden, animates when [data-inview="true"]
+     is set by the useInView IntersectionObserver hook. Optional --reveal-delay
+     staggers siblings. Transition (not animation) so it can't re-fire. */
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.7s var(--ease-out-quint),
+      transform 0.7s var(--ease-out-quint);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .reveal-on-scroll[data-inview="true"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Chat message entrance — fade + small rise, runs once per message */
+  @keyframes message-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+  .message-in {
+    animation: message-in 0.4s var(--ease-out-quint) both;
+    animation-delay: var(--reveal-delay, 0ms);
   }
 }
 @media (prefers-reduced-motion: reduce) {

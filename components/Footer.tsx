@@ -1,4 +1,6 @@
 import { profile } from "@/content/profile";
+import Reveal from "@/components/Reveal";
+import CopyEmail from "@/components/CopyEmail";
 
 export default function Footer() {
   const year = 2026;
@@ -22,34 +24,33 @@ export default function Footer() {
         </p>
       </div>
 
-      <h2 className="mt-6 max-w-2xl font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-        Hiring for an AI Engineer or FDE role? Let&rsquo;s talk.
-      </h2>
+      <Reveal delay={60}>
+        <h2 className="mt-6 max-w-2xl font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+          Hiring for an AI Engineer or FDE role? Let&rsquo;s talk.
+        </h2>
 
-      <a
-        href={`mailto:${profile.contact.email}`}
-        className="link-underline mt-6 inline-block font-display text-2xl text-accent sm:text-3xl"
-      >
-        {profile.contact.email}
-      </a>
+        <CopyEmail email={profile.contact.email} />
+      </Reveal>
 
-      <ul className="mt-12 grid gap-x-8 gap-y-6 border-t border-line pt-8 sm:grid-cols-2 md:grid-cols-4">
-        {contacts.map((c) => (
-          <li key={c.label}>
-            <p className="font-mono text-[0.65rem] uppercase tracking-widest text-faint">
-              {c.label}
-            </p>
-            <a
-              href={c.href}
-              target={c.href.startsWith("mailto:") ? undefined : "_blank"}
-              rel="noopener noreferrer"
-              className="link-underline mt-1 inline-block text-sm text-fg transition-colors hover:text-accent"
-            >
-              {c.value}
-            </a>
-          </li>
-        ))}
-      </ul>
+      <Reveal delay={120}>
+        <ul className="mt-12 grid gap-x-8 gap-y-6 border-t border-line pt-8 sm:grid-cols-2 md:grid-cols-4">
+          {contacts.map((c) => (
+            <li key={c.label}>
+              <p className="font-mono text-[0.65rem] uppercase tracking-widest text-faint">
+                {c.label}
+              </p>
+              <a
+                href={c.href}
+                target={c.href.startsWith("mailto:") ? undefined : "_blank"}
+                rel="noopener noreferrer"
+                className="link-underline mt-1 inline-block text-sm text-fg transition-colors hover:text-accent"
+              >
+                {c.value}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Reveal>
 
       <div className="mt-16 flex flex-col gap-2 border-t border-line pt-6 font-mono text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
         <span>© {year} Zaid Malick</span>

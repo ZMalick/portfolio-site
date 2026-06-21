@@ -1,3 +1,5 @@
+import Reveal from "@/components/Reveal";
+
 export default function SectionHeading({
   index,
   eyebrow,
@@ -8,7 +10,7 @@ export default function SectionHeading({
   title: string;
 }) {
   return (
-    <div className="flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-end sm:justify-between">
+    <Reveal className="flex flex-col gap-4 border-t border-line pt-6 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <p className="eyebrow flex items-center gap-2">
           <span className="text-accent">{index}</span>
@@ -19,6 +21,6 @@ export default function SectionHeading({
           {title}
         </h2>
       </div>
-    </div>
+    </Reveal>
   );
 }

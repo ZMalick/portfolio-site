@@ -1,5 +1,6 @@
 import SectionHeading from "@/components/SectionHeading";
-import Chat from "@/components/Chat";
+import Reveal from "@/components/Reveal";
+import ChatLazy from "@/components/ChatLazy";
 
 export default function AskSection() {
   return (
@@ -10,14 +11,16 @@ export default function AskSection() {
         title="Don't take my word for it. Ask."
       />
 
-      <p className="mt-6 max-w-2xl leading-relaxed text-muted">
-        An AI assistant grounded only in the facts on this page — it answers questions
-        about my work and won&rsquo;t invent anything it doesn&rsquo;t know.
-      </p>
+      <Reveal delay={60}>
+        <p className="mt-6 max-w-2xl leading-relaxed text-muted">
+          An AI assistant grounded only in the facts on this page — it answers questions
+          about my work and won&rsquo;t invent anything it doesn&rsquo;t know.
+        </p>
+      </Reveal>
 
-      <div className="mt-10">
-        <Chat />
-      </div>
+      <Reveal delay={120} className="mt-10">
+        <ChatLazy />
+      </Reveal>
     </section>
   );
 }

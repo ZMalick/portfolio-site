@@ -72,6 +72,11 @@ export default function RootLayout({
       className={`${bricolage.variable} ${jetbrains.variable} ${geist.variable} h-full antialiased`}
     >
       <body className="grain min-h-full flex flex-col bg-ink text-fg">
+        {/* Scroll reveals start hidden and are un-hidden by JS (useInView).
+            Without JS, show everything so the page is never blank. */}
+        <noscript>
+          <style>{`.reveal-on-scroll{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
         {children}
       </body>
     </html>

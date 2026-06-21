@@ -17,10 +17,10 @@ export default function Hero() {
           AI Engineer · Forward Deployed Engineer
         </p>
 
-        <h1
-          className="reveal mt-6 max-w-4xl font-display text-5xl font-semibold leading-[1.02] tracking-tight text-balance sm:text-6xl md:text-7xl"
-          style={{ animationDelay: "80ms" }}
-        >
+        {/* No entrance fade on the headline: it's the LCP element, and an
+            opacity animation defers the largest paint. It renders immediately;
+            the smaller elements around it still stagger in. */}
+        <h1 className="mt-6 max-w-4xl font-display text-5xl font-semibold leading-[1.02] tracking-tight text-balance sm:text-6xl md:text-7xl">
           {profile.headline}
         </h1>
 
@@ -37,14 +37,14 @@ export default function Hero() {
         >
           <a
             href="#ask"
-            className="group inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 font-mono text-sm font-medium text-accent-ink transition-transform hover:-translate-y-0.5"
+            className="group inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 font-mono text-sm font-medium text-accent-ink transition-[transform,background-color] duration-200 hover:-translate-y-0.5 hover:bg-accent-soft active:translate-y-0"
           >
             Ask my portfolio
             <span className="transition-transform group-hover:translate-y-0.5">↓</span>
           </a>
           <a
             href="#work"
-            className="inline-flex items-center rounded-full border border-line-bright px-5 py-2.5 font-mono text-sm text-fg transition-colors hover:border-accent hover:text-accent"
+            className="inline-flex items-center rounded-full border border-line-bright px-5 py-2.5 font-mono text-sm text-fg transition-[color,border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-accent hover:text-accent active:translate-y-0"
           >
             View work
           </a>

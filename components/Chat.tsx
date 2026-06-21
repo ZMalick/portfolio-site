@@ -68,12 +68,13 @@ export default function Chat() {
               </p>
             </div>
             <div className="mt-6 flex flex-wrap gap-2">
-              {SUGGESTED_QUESTIONS.map((q) => (
+              {SUGGESTED_QUESTIONS.map((q, i) => (
                 <button
                   key={q}
                   type="button"
                   onClick={() => send(q)}
-                  className="rounded-full border border-line-bright px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent"
+                  style={{ ["--reveal-delay" as string]: `${i * 70}ms` }}
+                  className="message-in rounded-full border border-line-bright px-3 py-1.5 font-mono text-xs text-muted transition-[color,border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-accent hover:text-accent active:translate-y-0"
                 >
                   {q}
                 </button>
@@ -82,7 +83,7 @@ export default function Chat() {
           </div>
         ) : (
           messages.map((m) => (
-            <div key={m.id} className="flex gap-3">
+            <div key={m.id} className="message-in flex gap-3">
               <span
                 className={`mt-0.5 select-none font-mono text-xs uppercase tracking-widest ${
                   m.role === "user" ? "text-faint" : "text-accent"
@@ -103,12 +104,18 @@ export default function Chat() {
         )}
 
         {status === "submitted" && (
-          <div className="flex gap-3">
+          <div className="message-in flex gap-3">
             <span className="mt-0.5 font-mono text-xs uppercase tracking-widest text-accent">
               zaid
             </span>
-            <span className="cursor-blink font-mono text-accent" aria-label="thinking">
-              ▍
+            <span className="flex items-center gap-1 py-1.5" aria-label="thinking">
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className="cursor-blink inline-block h-1.5 w-1.5 rounded-full bg-accent"
+                  style={{ animationDelay: `${i * 180}ms` }}
+                />
+              ))}
             </span>
           </div>
         )}
@@ -147,7 +154,7 @@ export default function Chat() {
           <button
             type="button"
             onClick={() => stop()}
-            className="rounded-md border border-line-bright px-3 py-1 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent"
+            className="rounded-md border border-line-bright px-3 py-1 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent active:translate-y-px"
           >
             stop
           </button>
@@ -155,7 +162,7 @@ export default function Chat() {
           <button
             type="submit"
             disabled={!input.trim()}
-            className="rounded-md bg-accent px-3 py-1 font-mono text-xs font-medium text-accent-ink transition-opacity disabled:opacity-40"
+            className="rounded-md bg-accent px-3 py-1 font-mono text-xs font-medium text-accent-ink transition-[opacity,background-color,transform] hover:bg-accent-soft active:scale-[0.97] disabled:opacity-40 disabled:hover:bg-accent"
           >
             send
           </button>

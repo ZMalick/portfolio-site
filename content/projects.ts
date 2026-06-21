@@ -52,12 +52,12 @@ export const projects: Project[] = [
     blurb:
       "A personal AI assistant on Claude with 25 task-specific skills and MCP integrations — wrapped in an eval-driven development loop with adversarial bug hunts and regression detection.",
     writeup:
-      "A personal AI executive-assistant framework: 25 task-specific skills (briefing, planning, follow-ups, research, evals, and more) running on Claude with persistent memory and Model Context Protocol integrations into Gmail, Calendar, and the web. The engineering that matters is the eval-driven development loop — each skill has its own eval harness with adversarial bug hunts and 30-day regression detection, so changes are measured instead of guessed. It's the most complete expression of the thesis: directing AI across a real workflow, with the discipline of tests around it.",
+      "A personal AI executive-assistant framework: 25 task-specific skills (briefing, planning, follow-ups, research, evals, and more) running on Claude with persistent memory and Model Context Protocol integrations into Gmail, Calendar, and documentation lookup. The engineering that matters is the eval-driven development loop — each skill has its own eval harness with adversarial bug hunts and 30-day regression detection, so changes are measured instead of guessed. It's the most complete expression of the thesis: directing AI across a real workflow, with the discipline of tests around it.",
     tech: ["Claude", "MCP", "Python", "Eval harness", "Gmail / Calendar"],
     highlights: [
       "25 task-specific skills under one assistant",
       "Eval-driven: per-skill harnesses, adversarial bug hunts, 30-day regression detection",
-      "MCP integrations — Gmail, Calendar, web",
+      "MCP integrations — Gmail, Calendar, doc lookup",
     ],
     links: [
       {
