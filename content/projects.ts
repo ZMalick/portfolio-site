@@ -1,8 +1,9 @@
 import type { Project } from "@/lib/types";
 
 // Every fact here was verified this session (live URLs, repos, metrics).
-// Executive Assistant + Lifeguard ship as case studies until their public
-// repos are pushed (gated) — then their repo links + proof badges flip.
+// Lifeguard's public repo is pushed (repo link + public-repo badge live).
+// Executive Assistant ships as a case study — sanitized architecture writeup
+// linked, no source repo by design.
 
 export const projects: Project[] = [
   {
