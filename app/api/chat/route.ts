@@ -63,10 +63,20 @@ export async function POST(req: Request) {
   // TEMP diagnostic — confirm the limiter sees a stable key + decrements on
   // Vercel. Remove once the per-IP limit is verified working in production.
   console.log(`[chat] rl ip=${ip} success=${success} remaining=${remaining}/${limit}`);
+  // TEMP diagnostic headers — expose IP resolution + limiter state so the limit
+  // can be verified via curl without dashboard log access. Remove with the log.
+  const debugHeaders: Record<string, string> = {
+    "x-rl-key": ip,
+    "x-rl-vercelip": String(ipAddress(req) ?? ""),
+    "x-rl-realip": req.headers.get("x-real-ip") ?? "",
+    "x-rl-xff": req.headers.get("x-forwarded-for") ?? "",
+    "x-ratelimit-limit": String(limit),
+    "x-ratelimit-remaining": String(remaining),
+  };
   if (!success) {
     return Response.json(
       { error: "Too many requests — give it a minute and try again." },
-      { status: 429 },
+      { status: 429, headers: debugHeaders },
     );
   }
 
@@ -114,7 +124,7 @@ export async function POST(req: Request) {
       abortSignal: req.signal,
     });
 
-    return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse({ headers: debugHeaders });
   } catch (err) {
     console.error("chat route error:", err);
     return Response.json(
