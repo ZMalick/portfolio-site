@@ -60,23 +60,19 @@ export async function POST(req: Request) {
   // Per-IP rate limit (no-op locally without Upstash creds).
   const ip = clientIp(req);
   const { success, remaining, limit } = await checkRateLimit(ip);
-  // TEMP diagnostic — confirm the limiter sees a stable key + decrements on
-  // Vercel. Remove once the per-IP limit is verified working in production.
-  console.log(`[chat] rl ip=${ip} success=${success} remaining=${remaining}/${limit}`);
-  // TEMP diagnostic headers — expose IP resolution + limiter state so the limit
-  // can be verified via curl without dashboard log access. Remove with the log.
-  const debugHeaders: Record<string, string> = {
-    "x-rl-key": ip,
-    "x-rl-vercelip": String(ipAddress(req) ?? ""),
-    "x-rl-realip": req.headers.get("x-real-ip") ?? "",
-    "x-rl-xff": req.headers.get("x-forwarded-for") ?? "",
-    "x-ratelimit-limit": String(limit),
-    "x-ratelimit-remaining": String(remaining),
-  };
+  // Standard rate-limit headers (non-sensitive) — surface the limiter state to
+  // clients/ops without echoing the IP key. Omitted when the limiter is a no-op
+  // (local dev: remaining is Infinity).
+  const rateLimitHeaders: Record<string, string> = Number.isFinite(remaining)
+    ? {
+        "x-ratelimit-limit": String(limit),
+        "x-ratelimit-remaining": String(Math.max(0, remaining)),
+      }
+    : {};
   if (!success) {
     return Response.json(
       { error: "Too many requests — give it a minute and try again." },
-      { status: 429, headers: debugHeaders },
+      { status: 429, headers: rateLimitHeaders },
     );
   }
 
@@ -124,7 +120,7 @@ export async function POST(req: Request) {
       abortSignal: req.signal,
     });
 
-    return result.toUIMessageStreamResponse({ headers: debugHeaders });
+    return result.toUIMessageStreamResponse({ headers: rateLimitHeaders });
   } catch (err) {
     console.error("chat route error:", err);
     return Response.json(
